@@ -92,6 +92,13 @@
 				</tr>
 				<tr>
 						<td colspan="2">
+                <input id="delobject" type="checkbox" name="conohaojs-delobject"
+                        value="1" <?php checked(get_option('conohaojs-delobject'),1); ?> />
+                <label for="delobject">Delete the object from the object storage when the library file is deleted.</label>
+						</td>
+				</tr>
+				<tr>
+						<td colspan="2">
 								<?php submit_button(); ?>
 						</td>
 				</tr>
