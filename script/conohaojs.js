@@ -32,6 +32,5 @@ var conohaojs_connect_test = function() {
 
 
 jQuery(function() {
-    console.log("OK");
     jQuery("#conohaojs-flash").hide();
 });
