@@ -102,19 +102,15 @@ function conohaojs_connect_test()
 
 // Upload a media file.
 function conohaojs_upload_file($file_id) {
-    $file = get_attached_file($file_id);
-    return __upload_object($file);
+    $path = get_attached_file($file_id);
+    return __upload_object($path);
 }
 
 // Upload thumbnails
 function conohaojs_thumb_upload($metadatas) {
-    if( ! is_array($metadatas)) {
-        return $metadatas;
-    }
-    
-    $dir = get_option('upload_path') . DIRECTORY_SEPARATOR . dirname($metadatas['file']);
+    $dir = wp_upload_dir();
     foreach($metadatas['sizes'] as $thumb) {
-        $file = $dir . DIRECTORY_SEPARATOR . $thumb['file'];
+        $file = $dir['path'] . DIRECTORY_SEPARATOR . $thumb['file'];
         if( ! __upload_object($file)) {
             throw new Exception("upload error");
         }
@@ -132,30 +128,58 @@ function conohaojs_delete_object($filepath) {
 // Return object URL
 function conohaojs_object_storage_url($wpurl) {
     $path = parse_url($wpurl, PHP_URL_PATH);
-    $filename = basename($path);
+    $object_name = basename($wpurl);
+
     $container_name = get_option('conohaojs-container');
-    return get_option("conohaojs-endpoint-url") . '/' . $container_name . '/' .  $filename;
+    $url = get_option("conohaojs-endpoint-url") . '/' . $container_name . '/' .  $object_name;
+    return $url;
 }
 
+// add date prefix to the filename.
+function conohaojs_modify_uploadfilename($file){
+    $dir = wp_upload_dir();
+    $prefix = str_replace($dir['basedir'] . DIRECTORY_SEPARATOR, '', $dir['path']);
+    $prefix = str_replace(DIRECTORY_SEPARATOR, '-', $prefix);
+    $file['name'] = $prefix . '-' . $file['name'];
+    return $file;
+}
 
-// WordPress hooks
+// -------------------- WordPress hooks --------------------
+
 add_action('admin_menu', 'add_pages');
 add_action('admin_init', 'conohaojs_options' );
 add_action('wp_ajax_conohaojs_connect_test', 'conohaojs_connect_test');
 
 add_action('add_attachment', 'conohaojs_upload_file');
-add_action('edit_attachment', 'conohaojs_upload_file');
-add_filter('wp_update_attachment_metadata', 'conohaojs_thumb_upload');
 add_filter('wp_generate_attachment_metadata', 'conohaojs_thumb_upload');
 
 if(get_option("conohaojs-delobject") == 1) {
     add_filter('wp_delete_file', 'conohaojs_delete_object');
 }
 
+add_filter('wp_handle_upload_prefilter', 'conohaojs_modify_uploadfilename' );
+
 add_filter('wp_get_attachment_url', 'conohaojs_object_storage_url');
 
 
 // -------------------- internal functions -------------------- 
+
+// generate the object name from the filepath.
+function __generate_object_name_from_path($path) {
+    $dir = wp_upload_dir();
+    $name = $path;
+    $name = str_replace($dir['basedir'] . DIRECTORY_SEPARATOR, '', $name);
+    $name = str_replace(DIRECTORY_SEPARATOR, '-', $name);
+    return $name;
+}
+
+function __generate_object_name_from_url($url) {
+    $dir = wp_upload_dir();
+    $name = $url;
+    $name = str_replace($dir['baseurl'] . '/', '', $name);
+    $name = str_replace('/', '-', $name);
+    return $name;
+}
 
 
 function __upload_object($filepath) {
@@ -197,6 +221,8 @@ function __upload_object($filepath) {
         $fp = fopen($filepath, 'r');
         $object_name = basename($filepath);
         $container->uploadObject($object_name, $fp);
+    } else {
+        return true;
     }
 
     // unlink local file if delete_after option is true.
@@ -217,7 +243,6 @@ function __delete_object($filepath) {
     // Get container
     $service = __get_object_store_service();
 
-
     try {
         $container = $service->getContainer($container_name);
     } catch(\Guzzle\Http\Exception\ClientErrorResponseException $ex) {
@@ -225,7 +250,6 @@ function __delete_object($filepath) {
         return false;
     }
     
-    // Upload file
     $object_name = basename($filepath);
     try {
         $object = $container->getObject($object_name);
