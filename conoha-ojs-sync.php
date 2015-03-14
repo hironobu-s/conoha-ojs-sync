@@ -29,8 +29,8 @@ function option_page() {
     wp_enqueue_style('conohaojs-style', plugins_url('style/conohaojs.css', __FILE__));
 
     // Default options
-    if (get_option('region') == null) {
-        update_option('region', 'RegionOne');
+    if (get_option('conohaojs-region') == null) {
+        update_option('conohaojs-region', 'RegionOne');
     }
     
     include "tpl/setting.php";
@@ -51,6 +51,7 @@ function conohaojs_options()
     
     // Synchronization option.
     register_setting('conohaojs-options', 'conohaojs-delafter', 'boolval');
+    register_setting('conohaojs-options', 'conohaojs-delobject', 'boolval');
 }
 
 // Connection test
@@ -83,12 +84,13 @@ function conohaojs_connect_test()
     }
     
     try {
-        $ojs = __getObjectStoreService($username, $password, $tenant_id, $auth_url, $region);
+        $ojs = __get_object_store_service($username, $password, $tenant_id, $auth_url, $region);
         echo json_encode(array(
                              'message' => "Connection was Successfully.",
                              'is_error' => false,
                      ));
         exit;
+        
     } catch(Exception $ex) {
         echo json_encode(array(
                              'message' => "ERROR: ".$ex->getMessage(),
@@ -99,11 +101,35 @@ function conohaojs_connect_test()
 }
 
 // Upload a media file.
-function conohaojs_upload($file_id) {
+function conohaojs_upload_file($file_id) {
     $file = get_attached_file($file_id);
-    return __uploadObject($file);
+    return __upload_object($file);
 }
 
+// Upload thumbnails
+function conohaojs_thumb_upload($metadatas) {
+    if( ! is_array($metadatas)) {
+        return $metadatas;
+    }
+    
+    $dir = get_option('upload_path') . DIRECTORY_SEPARATOR . dirname($metadatas['file']);
+    foreach($metadatas['sizes'] as $thumb) {
+        $file = $dir . DIRECTORY_SEPARATOR . $thumb['file'];
+        if( ! __upload_object($file)) {
+            throw new Exception("upload error");
+        }
+    }
+    
+    return $metadatas;
+}
+
+// Delete an object
+function conohaojs_delete_object($filepath) {
+    return __delete_object($filepath);
+}
+
+
+// Return object URL
 function conohaojs_object_storage_url($wpurl) {
     $path = parse_url($wpurl, PHP_URL_PATH);
     $filename = basename($path);
@@ -116,19 +142,27 @@ function conohaojs_object_storage_url($wpurl) {
 add_action('admin_menu', 'add_pages');
 add_action('admin_init', 'conohaojs_options' );
 add_action('wp_ajax_conohaojs_connect_test', 'conohaojs_connect_test');
-add_action('add_attachment', 'conohaojs_upload', 10, 1);
-add_filter('wp_generate_attachment_metadata', 'selupload_thumbUpload', 10, 1);
-add_filter('wp_get_attachment_url', 'conohaojs_object_storage_url' );
+
+add_action('add_attachment', 'conohaojs_upload_file');
+add_action('edit_attachment', 'conohaojs_upload_file');
+add_filter('wp_update_attachment_metadata', 'conohaojs_thumb_upload');
+add_filter('wp_generate_attachment_metadata', 'conohaojs_thumb_upload');
+
+if(get_option("conohaojs-delobject") == 1) {
+    add_filter('wp_delete_file', 'conohaojs_delete_object');
+}
+
+add_filter('wp_get_attachment_url', 'conohaojs_object_storage_url');
 
 
 // -------------------- internal functions -------------------- 
 
 
-function __uploadObject($filepath) {
+function __upload_object($filepath) {
     $container_name = get_option('conohaojs-container');
 
     // Get container
-    $service = __getObjectStoreService();
+    $service = __get_object_store_service();
 
     $created = false;
     try {
@@ -177,12 +211,39 @@ function __uploadObject($filepath) {
     return true;
 }
 
+function __delete_object($filepath) {
+    $container_name = get_option('conohaojs-container');
 
-function __getObjectStoreService($username = null,
-                                 $password = null,
-                                 $tenant_id = null,
-                                 $auth_url = null,
-                                 $region = null ) {
+    // Get container
+    $service = __get_object_store_service();
+
+
+    try {
+        $container = $service->getContainer($container_name);
+    } catch(\Guzzle\Http\Exception\ClientErrorResponseException $ex) {
+        error_log("container was not found.");
+        return false;
+    }
+    
+    // Upload file
+    $object_name = basename($filepath);
+    try {
+        $object = $container->getObject($object_name);
+    } catch(Exception $ex) {
+        // OK, Object does not already exists. 
+        return true;
+    }
+    
+    $object->delete();
+    
+    return true;
+}
+
+function __get_object_store_service($username = null,
+                                    $password = null,
+                                    $tenant_id = null,
+                                    $auth_url = null,
+                                    $region = null ) {
     static $service = null;
     
     if( ! $service) {
