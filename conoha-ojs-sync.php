@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: ConoHa Object Sync
- * Plugin URI: http://www.conoha.jp/
+ * Plugin URI: https://github.com/hironobu-s/conoha-ojs-sync
  * Description: This WordPress plugin allows you to upload files from the library to ConoHa Object Storage or other OpenStack Swift-based Object Store.
  * Author: Hironobu Saitoh
  * Author URI: https://github.com/hironobu-s
