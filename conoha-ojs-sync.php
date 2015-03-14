@@ -27,6 +27,12 @@ function option_page() {
     wp_enqueue_script('conohaojs-script', plugins_url( '/script/conohaojs.js' , __FILE__ ), array( 'jquery' ), '1.2.4',true);
     
     wp_enqueue_style('conohaojs-style', plugins_url('style/conohaojs.css', __FILE__));
+
+    // Default options
+    if (get_option('region') == null) {
+        update_option('region', 'RegionOne');
+    }
+    
     include "tpl/setting.php";
 }
 
