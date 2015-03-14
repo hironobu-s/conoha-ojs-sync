@@ -3,7 +3,7 @@
 		<p></p>
 </div>
 
-<h2>Setting ConoHa object storage(OpenStack Swift) plugin.</h2>
+<h2>Setting ConoHa Object Sync</h2>
 
 <p>Type the API informations for the Object storage. No account? Let's <a href="https://www.conoha.jp/en/" target="_blank" >signup</a>.</p>
 
@@ -58,16 +58,6 @@
 								<input id="conohaojs-container" name="conohaojs-container" type="text"
 												size="15" value="<?php echo esc_attr(
 																				 get_option('conohaojs-container')
-																				 ); ?>" class="regular-text code"/>
-
-						</td>
-				</tr>
-				<tr>
-						<th><?php _e('Localpath') ?>:</th>
-						<td>
-								<input id="conohaojs-localpath" name="conohaojs-localpath" type="text"
-												size="15" value="<?php echo esc_attr(
-																				 get_option('conohaojs-localpath')
 																				 ); ?>" class="regular-text code"/>
 
 						</td>
