@@ -59,17 +59,17 @@
 																				 get_option('conohaojs-region')
 																				 ); ?>" class="regular-text code"/>
 
-								<p class="description">Default value is "RegionOne".</p>
 						</td>
 				</tr>
 				<tr>
-						<th><?php _e('Container') ?>:</th>
+						<th><?php _e('Container Name') ?>:</th>
 						<td>
 								<input id="conohaojs-container" name="conohaojs-container" type="text"
 												size="15" value="<?php echo esc_attr(
 																				 get_option('conohaojs-container')
 																				 ); ?>" class="regular-text code"/>
-								<p class="description">Container name that media files will be uploaded. If the container not found, It will create automatically.</p>
+								<p class="description">Container name that media files is uploaded. If the container not found, It will create automatically.</p>
+								<p class="conohaojs-warning">The plugin will set the ACL to allow public access. </p>
 						</td>
 				</tr>
 				<tr>
