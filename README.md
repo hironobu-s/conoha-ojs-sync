@@ -10,7 +10,7 @@ This WordPress plugin allows you to upload files from the library to [ConoHa Obj
  * Author: Hironobu Saitoh
  * Author URI: https://github.com/hironobu-s
  * Version: 0.1
- * License: MIT
+ * License: GPLv2
 
 
 ## Install
@@ -35,4 +35,4 @@ curl -sS https://getcomposer.org/installer | php
 
 # License
 
-MIT License
+GPLv2

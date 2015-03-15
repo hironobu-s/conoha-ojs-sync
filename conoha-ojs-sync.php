@@ -8,7 +8,7 @@
  * Author URI: https://github.com/hironobu-s
  * Text Domain: conoha-ojs-sync
  * Version: 0.1
- * License: MIT
+ * License: GPLv2
 */
 
 // Text Domain
