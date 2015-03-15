@@ -8,8 +8,6 @@ ConoHaオブジェクトストレージ以外でも、OpenStack Swiftがベー�
 
 ![screenshot-2.png](screenshot-2.png)
 
-> 上記は英語ですが、言語設定が日本語の場合は日本語で表示されます。
-
 ## 使い方
 
 [ZIPファイル](https://github.com/hironobu-s/conoha-ojs-sync/releases/download/0.1/conoha-ojs-sync.zip)をダウンロードして、WordPressのpluginディレクトリに展開します。その後、管理画面の「プラグイン」メニューから有効化してください。
