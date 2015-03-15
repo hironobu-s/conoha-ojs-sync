@@ -6,9 +6,13 @@
  * Description: This WordPress plugin allows you to upload files from the library to ConoHa Object Storage or other OpenStack Swift-based Object Store.
  * Author: Hironobu Saitoh
  * Author URI: https://github.com/hironobu-s
+ * Text Domain: conoha-ojs-sync
  * Version: 0.1
  * License: MIT
 */
+
+// Text Domain
+load_plugin_textdomain('conoha-ojs-sync', false, basename(dirname(__FILE__)).'/lang');
 
 // Load SDKs
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';

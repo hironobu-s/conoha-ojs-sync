@@ -1,0 +1,102 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2015-03-15 19:21+0900\n"
+"PO-Revision-Date: 2015-03-15 19:21+0900\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-Basepath: /Users/hiro/dev/conoha-ojs-sync\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-KeywordsList: _e\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: tpl/setting.php:6
+msgid "Setting ConoHa Object Sync"
+msgstr "ConoHa Object Sync設定"
+
+#: tpl/setting.php:8
+msgid ""
+"Type the API informations for the ConoHa Object storage. No account? Let's "
+msgstr ""
+"ConoHaオブジェクトストレージ(もしくはOpenStackシステム)のAPI情報を入力してく"
+"ださい。アカウントをお持ちで無い場合はサインアップしてください。"
+
+#: tpl/setting.php:8
+msgid "https://www.conoha.jp/en/"
+msgstr "https://www.conoha.jp/"
+
+#: tpl/setting.php:8
+msgid "signup"
+msgstr "[サインアップ]"
+
+#: tpl/setting.php:15
+msgid "API Account"
+msgstr "APIアカウント名"
+
+#: tpl/setting.php:25
+msgid "API Password"
+msgstr "APIパスワード"
+
+#: tpl/setting.php:35
+msgid "Tenant ID"
+msgstr "テナントID"
+
+#: tpl/setting.php:45
+msgid "Auth URL"
+msgstr "Auth URL"
+
+#: tpl/setting.php:55
+msgid "Region"
+msgstr "リージョン"
+
+#: tpl/setting.php:65
+msgid "Container Name"
+msgstr "コンテナ名"
+
+#: tpl/setting.php:71
+msgid ""
+"Container name that media files is uploaded. If the container not found, It "
+"will create automatically."
+msgstr ""
+"メディアファイルが格納させるコンテナ名を指定します。コンテナが存在しない場合"
+"は自動的に作成されます。"
+
+#: tpl/setting.php:72
+msgid "The plugin will set the ACL to allow public access."
+msgstr "コンテナにはプラグインによって自動的に公開アクセス権が付与されます。"
+
+#: tpl/setting.php:78
+msgid "Check the connection"
+msgstr "接続テスト"
+
+#: tpl/setting.php:84
+msgid "Synchronization options"
+msgstr "同期オプション"
+
+#: tpl/setting.php:90
+msgid ""
+"Delete the uploaded file from the local storage after a successful upload to "
+"the object storage."
+msgstr ""
+"オブジェクトストレージへのアップロードが成功した場合、ローカルからファイルを"
+"削除する。"
+
+#: tpl/setting.php:97
+msgid ""
+"Delete the object from the object storage when the library file is deleted."
+msgstr ""
+"ライブラリからメディアが削除されたとき、オブジェクトストレージ上のメディアも"
+"削除する。"
+
+#~ msgid ""
+#~ "Type the API informations for the ConoHa Object storage. No account? "
+#~ "Let's <a href=\"https://www.conoha.jp/en/\" target=\"_blank\" >signup</a>."
+#~ msgstr ""
+#~ "ConoHaオブジェクトストレージのAPI情報を設定してください。アカウントをお持"
+#~ "ちでない場合は<a href=\"https://www.conoha.jp/\" target=\"_blank\" >こちら"
+#~ "</a>からサインアップしてください。"
