@@ -205,10 +205,14 @@ function __upload_object($filepath) {
             return false;
         }
         
-        // Set container ACL
+    }
+
+    // Set container ACL
+    $prop = $container->getMetadata()->getProperty("read");
+    if(strpos($prop, '.r:*') === false) {
         $headers = array(
             'X-Web-Mode' => 'true',
-            'X-Container-Read' => '.r:*,.rlistings'
+            'X-Container-Read' => '.r:*'
         );
         $url = $service->getUrl($container_name);
         $cli = $service->getClient();
@@ -262,6 +266,7 @@ function __delete_object($filepath) {
     
     return true;
 }
+
 
 function __get_object_store_service($username = null,
                                     $password = null,
