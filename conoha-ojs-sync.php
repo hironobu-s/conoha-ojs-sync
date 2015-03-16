@@ -22,21 +22,20 @@ require_once dirname(__FILE__) . "/vendor/rackspace/php-opencloud/lib/OpenCloud/
 use OpenCloud\Openstack;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 
-
 function add_pages() {
     add_submenu_page('options-general.php', "ConoHa Object Store", "ConoHa Object Sync", 8, __FILE__, 'option_page');
 }
 
 function option_page() {
     wp_enqueue_script('conohaojs-script', plugins_url( '/script/conohaojs.js' , __FILE__ ), array( 'jquery' ), '1.2.4',true);
-    
+
     wp_enqueue_style('conohaojs-style', plugins_url('style/conohaojs.css', __FILE__));
 
     // Default options
     if (get_option('conohaojs-region') == null) {
         update_option('conohaojs-region', 'RegionOne');
     }
-    
+
     include "tpl/setting.php";
 }
 
@@ -52,7 +51,7 @@ function conohaojs_options()
 
     // Container name that media files will be uploaded.
     register_setting('conohaojs-options', 'conohaojs-container', 'strval');
-    
+
     // Synchronization option.
     register_setting('conohaojs-options', 'conohaojs-delafter', 'boolval');
     register_setting('conohaojs-options', 'conohaojs-delobject', 'boolval');
@@ -63,30 +62,29 @@ function conohaojs_connect_test()
 {
     $username = '';
     if(isset($_POST['username'])) {
-        $username = $_POST['username'];
+        $username = sanitize_text_field($_POST['username']);
     }
 
     $password = '';
     if(isset($_POST['password'])) {
-        $password = $_POST['password'];
+        $password = sanitize_text_field($_POST['password']);
     }
-    
 
     $tenant_id = '';
     if(isset($_POST['tenantId'])) {
-        $tenant_id = $_POST['tenantId'];
+        $tenant_id = sanitize_text_field($_POST['tenantId']);
     }
 
     $auth_url = '';
     if(isset($_POST['authUrl'])) {
-        $auth_url = $_POST['authUrl'];
+        $auth_url = sanitize_url($_POST['authUrl']);
     }
-    
+
     $region = '';
     if(isset($_POST['region'])) {
-        $region = $_POST['region'];
+        $region = sanitize_text_field($_POST['region']);
     }
-    
+
     try {
         $ojs = __get_object_store_service($username, $password, $tenant_id, $auth_url, $region);
         echo json_encode(array(
@@ -94,7 +92,7 @@ function conohaojs_connect_test()
                              'is_error' => false,
                      ));
         exit;
-        
+
     } catch(Exception $ex) {
         echo json_encode(array(
                              'message' => "ERROR: ".$ex->getMessage(),
@@ -119,7 +117,7 @@ function conohaojs_thumb_upload($metadatas) {
             throw new Exception("upload error");
         }
     }
-    
+
     return $metadatas;
 }
 
@@ -166,7 +164,7 @@ add_filter('wp_handle_upload_prefilter', 'conohaojs_modify_uploadfilename' );
 add_filter('wp_get_attachment_url', 'conohaojs_object_storage_url');
 
 
-// -------------------- internal functions -------------------- 
+// -------------------- internal functions --------------------
 
 // generate the object name from the filepath.
 function __generate_object_name_from_path($path) {
@@ -208,7 +206,7 @@ function __upload_object($filepath) {
             error_log("Can not create the container.");
             return false;
         }
-        
+
     }
 
     // Set container ACL
@@ -221,9 +219,9 @@ function __upload_object($filepath) {
         $url = $service->getUrl($container_name);
         $cli = $service->getClient();
         $cli->put($url, $headers)
-            ->send();        
+            ->send();
     }
-    
+
     // Upload file
     if(is_readable($filepath)) {
         $fp = fopen($filepath, 'r');
@@ -257,17 +255,17 @@ function __delete_object($filepath) {
         error_log("container was not found.");
         return false;
     }
-    
+
     $object_name = basename($filepath);
     try {
         $object = $container->getObject($object_name);
     } catch(Exception $ex) {
-        // OK, Object does not already exists. 
+        // OK, Object does not already exists.
         return true;
     }
-    
+
     $object->delete();
-    
+
     return true;
 }
 
@@ -278,7 +276,7 @@ function __get_object_store_service($username = null,
                                     $auth_url = null,
                                     $region = null ) {
     static $service = null;
-    
+
     if( ! $service) {
         if($username == null) {
             $username = get_option('conohaojs-username');
@@ -295,7 +293,7 @@ function __get_object_store_service($username = null,
         if($region == null) {
             $region = get_option('conohaojs-region');
         }
-    
+
         $client = new Openstack(
             $auth_url,
             array(
@@ -304,7 +302,7 @@ function __get_object_store_service($username = null,
                 'password' => $password,
             )
         );
-    
+
         $service = $client->objectStoreService('swift', $region);
 
         // Set endpoint URL to option
@@ -312,4 +310,3 @@ function __get_object_store_service($username = null,
     }
     return $service;
 }
-
