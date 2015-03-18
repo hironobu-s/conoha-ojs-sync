@@ -11,11 +11,31 @@ WordPress plugin for ConoHa Object Storage.
 
 == Description ==
 
-This WordPress plugin allows you to upload files from the library to [ConoHa Object Storage](https://www.conoha.jp/en/) or OpenStack Swift-based Object Store. 
+[ConoHa](https://www.conoha.jp/en/) is Cloud like VPS service and ConoHa Object Storage is the OpenStack Swift-based Object Store service.
+
+This WordPress plugin allows you to upload media files from the library to ConoHa Object Storage or other OpenStack Swift-based Object Store.
+
+These files then load from the Object Storage and optimize the your site/blog performance.
+
+This plugin may be available in other OpenStack Swift-based system.
+
+= Features =
+
+* Synchronization media files with the Object Storage.
+* Automatically rewrite the media url to the endpoint url.
+
+= For Japanese users. =
+
+WordPressのメディアファイル(画像など)をConoHaオブジェクトストレージで扱うためのWordPressプラグインです。
+
+WordPressの管理画面からメディアを追加すると、自動的にオブジェクトストレージにアップロードを行います。オブジェクトストレージは容量無制限なため、空き容量を気にすること無くメディアファイルを扱うことができます。
+
+また、このプラグインはメディアファイルのURLを変更し、オブジェクトストレージから直接配信するように設定します。これにより、WordPressを運用しているサーバに負荷をかけずに、メディアファイルを配信することができます。
+
+ConoHaオブジェクトストレージ以外でも、OpenStack Swiftがベースのシステムであれば動作すると思います(未検証)。
 
 
 == Installation ==
-
 
 1. Run the following command.
 2. Activate the plugin through the 'Plugins' menu in WordPress
