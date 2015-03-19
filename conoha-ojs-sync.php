@@ -12,11 +12,11 @@
 */
 
 // Text Domain
-load_plugin_textdomain('conoha-ojs-sync', false, basename(dirname(__FILE__)).'/lang');
+load_plugin_textdomain('conoha-ojs-sync', false, basename(dirname(__FILE__)). DIRECTORY_SEPARATOR . 'lang');
 
 // Load SDKs
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-require_once dirname(__FILE__) . "/vendor/rackspace/php-opencloud/lib/OpenCloud/OpenStack.php";
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'rackspace' . DIRECTORY_SEPARATOR' . php-opencloud' . DIRECTORY_SEPARATOR 'lib' . DIRECTORY_SEPARATOR . 'OpenCloud' . DIRECTORY_SEPARATOR . 'OpenStack.php';
 
 // use OpenCloud\Openstack namespace
 use OpenCloud\Openstack;
