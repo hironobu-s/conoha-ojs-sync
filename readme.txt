@@ -7,7 +7,7 @@ Stable tag: 0.1
 License: GPLv2 or later.
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-WordPress plugin for ConoHa Object Storage.
+ConoHa Object Sync is a simple plugin for WordPress that helps you to synchronizes media files with ConoHa Object Storage or other OpenStack Swift-based system.
 
 == Description ==
 
