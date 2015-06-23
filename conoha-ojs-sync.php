@@ -23,7 +23,7 @@ use OpenCloud\Openstack;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 
 function add_pages() {
-    add_submenu_page('options-general.php', "ConoHa Object Store", "ConoHa Object Sync", 8, __FILE__, 'option_page');
+    $r = add_submenu_page('options-general.php', "ConoHa Object Store", "ConoHa Object Sync", 8, __FILE__, 'option_page');
 }
 
 function option_page() {
@@ -33,9 +33,28 @@ function option_page() {
 
     // Default options
     if (get_option('conohaojs-region') == null) {
-        update_option('conohaojs-region', 'RegionOne');
+        update_option('conohaojs-region', 'tyo1');
+    }
+    if (get_option('conohaojs-servicename') == null) {
+        update_option('conohaojs-servicename', 'Object Storage Service');
+    }
+    if (get_option('conohaojs-delobject') == null) {
+        update_option('conohaojs-delobject', 1);
     }
 
+    $messages = array();
+    if(isset($_POST['resync']) && $_POST['resync']) {
+        $files = conohaojs_resync();
+        foreach($files as $file => $stat) {
+            if($stat === true) {
+                $messages[] = "$file uploaded.";
+            } else if($stat === false) {
+                $messages[] = "$file upload failed.";
+            } else {
+                $messages[] = "$file skiped.";
+            }
+        }
+    }
     include "tpl/setting.php";
 }
 
@@ -48,13 +67,19 @@ function conohaojs_options()
     register_setting('conohaojs-options', 'conohaojs-tenant-id', 'strval');
     register_setting('conohaojs-options', 'conohaojs-auth-url', 'esc_url');
     register_setting('conohaojs-options', 'conohaojs-region', 'strval');
+    register_setting('conohaojs-options', 'conohaojs-servicename', 'strval');
 
     // Container name that media files will be uploaded.
     register_setting('conohaojs-options', 'conohaojs-container', 'strval');
 
+    // Extensions
+    register_setting('conohaojs-options', 'conohaojs-extensions', 'strval');
+
     // Synchronization option.
     register_setting('conohaojs-options', 'conohaojs-delafter', 'boolval');
     register_setting('conohaojs-options', 'conohaojs-delobject', 'boolval');
+
+    register_setting('conohaojs-resync', 'conohaojs-resync', 'intval');
 }
 
 // Connection test
@@ -85,8 +110,13 @@ function conohaojs_connect_test()
         $region = sanitize_text_field($_POST['region']);
     }
 
+    $servicename = '';
+    if(isset($_POST['servicename'])) {
+        $servicename = sanitize_text_field($_POST['servicename']);
+    }
+
     try {
-        $ojs = __get_object_store_service($username, $password, $tenant_id, $auth_url, $region);
+        $ojs = __get_object_store_service($username, $password, $tenant_id, $auth_url, $region, $servicename);
         echo json_encode(array(
                              'message' => "Connection was Successfully.",
                              'is_error' => false,
@@ -102,17 +132,81 @@ function conohaojs_connect_test()
     }
 }
 
+// Resync
+function conohaojs_resync() {
+    $args = array(
+        'post_type' => 'attachment',
+        'numberposts' => null,
+        'post_status' => null,
+        'post_parent' => null,
+        'orderby' => null,
+        'order' => null,
+        'exclude' => null,
+    );
+
+    $attachments = get_posts($args);
+    if( ! $attachments) {
+        return array();
+    }
+
+    $retval = array();
+    foreach($attachments as $attach) {
+        $path = get_attached_file($attach->ID);
+        $name = __generate_object_name_from_path($path);
+        $obj = __head_object($name);
+
+        $do_upload = false;
+        if( ! $obj OR ! file_exists($path)) {
+            $do_upload = true;
+
+        } else {
+            $mod1 = new DateTime($obj->getLastModified());
+            $mod2 = new DateTime("@".filemtime($path));
+
+            $d = $mod2->diff($mod1);
+            if($d->invert === 1) {
+                $do_upload = true;
+            }
+        }
+
+        // Upload object if it isn't exists.
+        if( ! $obj) {
+            $retval[$name] = conohaojs_upload_file($attach->ID);
+        } else {
+            $retval[$name] = null;
+        }
+    }
+    return $retval;
+}
+
 // Upload a media file.
 function conohaojs_upload_file($file_id) {
     $path = get_attached_file($file_id);
+    if( ! __file_has_upload_extensions($path)) {
+        return null;
+    }
+
+    // upload thumbnails
+    $metas = wp_get_attachment_thumb_file($file_id);
+    // var_dump($metas);
+    // exit;
+
     return __upload_object($path);
 }
 
 // Upload thumbnails
 function conohaojs_thumb_upload($metadatas) {
+    if( ! isset($metadatas['sizes'])) {
+        return $metadatas;
+    }
+
     $dir = wp_upload_dir();
     foreach($metadatas['sizes'] as $thumb) {
         $file = $dir['path'] . DIRECTORY_SEPARATOR . $thumb['file'];
+        if( ! __file_has_upload_extensions($path)) {
+            return false;
+        }
+
         if( ! __upload_object($file)) {
             throw new Exception("upload error");
         }
@@ -123,14 +217,24 @@ function conohaojs_thumb_upload($metadatas) {
 
 // Delete an object
 function conohaojs_delete_object($filepath) {
+    if( ! __file_has_upload_extensions($path)) {
+        return true;
+    }
     return __delete_object($filepath);
 }
 
 
 // Return object URL
 function conohaojs_object_storage_url($wpurl) {
-    $path = parse_url($wpurl, PHP_URL_PATH);
-    $object_name = basename($wpurl);
+
+    $file_id = __get_attachment_id_from_url($wpurl);
+    $path = get_attached_file($file_id);
+
+    if( ! __file_has_upload_extensions($path)) {
+        return $wpurl;
+    }
+
+    $object_name = __generate_object_name_from_path($path);
 
     $container_name = get_option('conohaojs-container');
     $url = get_option("conohaojs-endpoint-url") . '/' . $container_name . '/' .  $object_name;
@@ -153,7 +257,9 @@ add_action('admin_init', 'conohaojs_options' );
 add_action('wp_ajax_conohaojs_connect_test', 'conohaojs_connect_test');
 
 add_action('add_attachment', 'conohaojs_upload_file');
-add_filter('wp_generate_attachment_metadata', 'conohaojs_thumb_upload');
+add_action('edit_attachment', 'conohaojs_upload_file');
+add_action('delete_attachment', 'conohaojs_delete_object');
+add_filter('wp_update_attachment_metadata', 'conohaojs_thumb_upload');
 
 if(get_option("conohaojs-delobject") == 1) {
     add_filter('wp_delete_file', 'conohaojs_delete_object');
@@ -169,18 +275,47 @@ add_filter('wp_get_attachment_url', 'conohaojs_object_storage_url');
 // generate the object name from the filepath.
 function __generate_object_name_from_path($path) {
     $dir = wp_upload_dir();
-    $name = $path;
+    $name = basename($path);
     $name = str_replace($dir['basedir'] . DIRECTORY_SEPARATOR, '', $name);
     $name = str_replace(DIRECTORY_SEPARATOR, '-', $name);
     return $name;
 }
 
-function __generate_object_name_from_url($url) {
-    $dir = wp_upload_dir();
-    $name = $url;
-    $name = str_replace($dir['baseurl'] . '/', '', $name);
-    $name = str_replace('/', '-', $name);
-    return $name;
+// Confirm the file extension that need uploads.
+function __file_has_upload_extensions($file) {
+    $extensions = get_option('conohaojs-extensions');
+    if($extensions == '') {
+        return true;
+    }
+
+    $f = new SplFileInfo($file);
+    if( ! $f->isFile()) {
+        return false;
+    }
+
+    $fileext = $f->getExtension();
+    $fileext = strtolower($fileext);
+
+    foreach(explode(',', $extensions) as $ext) {
+        if($fileext == strtolower($ext)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function __get_attachment_id_from_url($url) {
+    global $wpdb;
+
+    $upload_dir = wp_upload_dir();
+    if(strpos($url, $upload_dir['baseurl']) === false){
+        return null;
+    }
+
+    $url = str_replace($upload_dir['baseurl'] . '/', '', $url);
+
+    $attachment_id = $wpdb->get_var($wpdb->prepare( "SELECT wposts.ID FROM $wpdb->posts wposts, $wpdb->postmeta wpostmeta WHERE wposts.ID = wpostmeta.post_id AND wpostmeta.meta_key = '_wp_attached_file' AND wpostmeta.meta_value = '%s' AND wposts.post_type = 'attachment'", $url));
+    return $attachment_id;
 }
 
 
@@ -225,22 +360,35 @@ function __upload_object($filepath) {
     // Upload file
     if(is_readable($filepath)) {
         $fp = fopen($filepath, 'r');
-        $object_name = basename($filepath);
+        $object_name = __generate_object_name_from_path($filepath);
         $container->uploadObject($object_name, $fp);
     } else {
         return true;
     }
 
-    // unlink local file if delete_after option is true.
-    $object = $container->getObject($object_name);
-    if(
-        $object instanceof OpenCloud\ObjectStore\Resource\DataObject &&
-        get_option('conohaojs-delafter') == 1
-    ) {
-        @unlink($filepath);
+    return true;
+}
+
+function __head_object($object_name) {
+    $container_name = get_option('conohaojs-container');
+
+    // Get container
+    $service = __get_object_store_service();
+
+    try {
+        $container = $service->getContainer($container_name);
+    } catch(\Guzzle\Http\Exception\ClientErrorResponseException $ex) {
+        error_log("container was not found.");
+        return false;
     }
 
-    return true;
+    try {
+        $object = $container->getPartialObject($object_name);
+        return $object;
+
+    } catch(Exception $ex) {
+        return false;
+    }
 }
 
 function __delete_object($filepath) {
@@ -256,7 +404,7 @@ function __delete_object($filepath) {
         return false;
     }
 
-    $object_name = basename($filepath);
+    $object_name = __generate_object_name_from_path($filepath);
     try {
         $object = $container->getObject($object_name);
     } catch(Exception $ex) {
@@ -274,7 +422,9 @@ function __get_object_store_service($username = null,
                                     $password = null,
                                     $tenant_id = null,
                                     $auth_url = null,
-                                    $region = null ) {
+                                    $region = null,
+                                    $servicename = null
+) {
     static $service = null;
 
     if( ! $service) {
@@ -293,6 +443,9 @@ function __get_object_store_service($username = null,
         if($region == null) {
             $region = get_option('conohaojs-region');
         }
+        if($servicename == null) {
+            $servicename = get_option('conohaojs-servicename');
+        }
 
         $client = new Openstack(
             $auth_url,
@@ -303,7 +456,7 @@ function __get_object_store_service($username = null,
             )
         );
 
-        $service = $client->objectStoreService('swift', $region);
+        $service = $client->objectStoreService($servicename, $region);
 
         // Set endpoint URL to option
         update_option('conohaojs-endpoint-url', $service->getEndpoint()->getPublicUrl());
