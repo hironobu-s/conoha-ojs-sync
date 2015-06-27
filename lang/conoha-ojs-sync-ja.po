@@ -54,6 +54,15 @@ msgstr "Auth URL"
 msgid "Region"
 msgstr "リージョン"
 
+msgid "Service Name"
+msgstr "サービス名"
+
+msgid "The name of OpenStack object-store service. You can find it in KeyStone \"token-get\" response."
+msgstr "OpenStackの\"object-store\"で使われる名前を設定します。この値はKeyStoneのtoken-getの返り値に含まれます。"
+
+msgid "You will use \"Object Storage Service\" for ConoHa. If you use the old ConoHa, try to use "swift"."
+msgstr "ConoHaをお使いの場合は、「Object Storage Service」と入力して下さい。(古いオブジェクトストレージの場合は「swift」の場合もあります)"
+
 #: tpl/setting.php:65
 msgid "Container Name"
 msgstr "コンテナ名"
@@ -69,6 +78,18 @@ msgstr ""
 #: tpl/setting.php:72
 msgid "The plugin will set the ACL to allow public access."
 msgstr "コンテナにはプラグインによって自動的に公開アクセス権が付与されます。"
+
+msgid "File Types"
+msgstr "ファイルタイプ"
+
+msgid "Extensions"
+msgstr "拡張子リスト"
+
+msgid "The media files that has these extensions will be uploaded to the Object Storage. You can use comma separated format to specify more than one(Example: "png,jpg,gif,mov,wmv")."
+msgstr "アップロードする拡張子を指定します。拡張子は半角カンマ区切りで複数指定可能です(例: png,jpg,gif,mov,wmv)。"
+
+msgid "If this field is blank, Everything will be uploaded."
+msgstr "空欄の場合は全てのファイル形式がアップロード対象となります。"
 
 #: tpl/setting.php:78
 msgid "Check the connection"
@@ -93,10 +114,8 @@ msgstr ""
 "ライブラリからメディアが削除されたとき、オブジェクトストレージ上のメディアも"
 "削除する。"
 
-#~ msgid ""
-#~ "Type the API informations for the ConoHa Object storage. No account? "
-#~ "Let's <a href=\"https://www.conoha.jp/en/\" target=\"_blank\" >signup</a>."
-#~ msgstr ""
-#~ "ConoHaオブジェクトストレージのAPI情報を設定してください。アカウントをお持"
-#~ "ちでない場合は<a href=\"https://www.conoha.jp/\" target=\"_blank\" >こちら"
-#~ "</a>からサインアップしてください。"
+msgid "Resynchronization"
+msgstr "再同期"
+
+msgid "Resynchronization all media files to the Object Storage. It may take a long time."
+msgstr "サーバ上のメディアファイルを全てオブジェクトストレージにアップロードし直します。この実行には時間がかかる場合があります。"

@@ -85,7 +85,9 @@
 																				 get_option('conohaojs-servicename')
 																				 ); ?>" class="regular-text code"/>
 
-								<p class="description"><?php _e('The name of OpenStack "object-store". You will use "Object Storage Service" for ConoHa. If you use the old ConoHa, try use "swift".', 'conoha-ojs-sync'); ?></p>
+								<p class="description"><?php _e('The name of OpenStack object-store service. You can find it in KeyStone "token-get" response.', 'conoha-ojs-sync'); ?></p>
+
+<p class="description"><?php _e('You will use "Object Storage Service" for ConoHa. If you use the old ConoHa, try to use "swift".', 'conoha-ojs-sync'); ?></p>
 
 						</td>
 				</tr>
@@ -119,7 +121,8 @@
 																				 get_option('conohaojs-extensions')
 																				 ); ?>" class="regular-text code"/>
 
-								<p class="description"><?php _e('The media files that has these extensions will be uploaded to the Object Storage. You can use comma separated format to specify more than one(Example: "png,jpg,gif,mov,wmv"). The values in this field should be the comma separated. If this field is blank, Everything will be uploaded. ', 'conoha-ojs-sync'); ?></p>
+								<p class="description"><?php _e('The media files that has these extensions will be uploaded to the Object Storage. You can use comma separated format to specify more than one(Example: "png,jpg,gif,mov,wmv").', 'conoha-ojs-sync'); ?></p>
+								<p class="description"><?php _e('If this field is blank, Everything will be uploaded.', 'conoha-ojs-sync'); ?></p>
 
 						</td>
 				</tr>
@@ -149,6 +152,6 @@
 <hr />
 <h2><?php _e('Resynchronization', "conoha-ojs-sync"); ?></h2>
 <form  method="post">
-		<p>Resynchronization all media files to the Object Storage. It may take a long time.</p>
-    <?php submit_button('Resync', 'Secondary', 'resync') ?>
+     <p><?php _e('Resynchronization all media files to the Object Storage. It may take a long time.', 'conoha-ojs-sync') ?></p>
+    <?php submit_button('Resynchronization', 'Secondary', 'resync') ?>
 </form>
