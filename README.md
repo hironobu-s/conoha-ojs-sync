@@ -8,16 +8,20 @@ WordPressの管理画面からメディアを追加すると、自動的にオ�
 
 ConoHaオブジェクトストレージ以外でも、OpenStack Swiftがベースのシステムであれば動作すると思います(未検証)。
 
+wordpress.org上のページもご覧下さい。
+https://wordpress.org/plugins/conoha-object-sync/
+
 ## スクリーンショット
 
 ![screenshot-2.png](screenshot-2.png)
 
-## 使い方
-
-[ZIPファイル](https://github.com/hironobu-s/conoha-ojs-sync/releases/download/0.1/conoha-ojs-sync.zip)をダウンロードして、WordPressのpluginディレクトリに展開します。その後、管理画面の「プラグイン」メニューから有効化してください。
-
 
 ## インストール
+
+WordPressの管理ページからインストール可能です。
+
+
+## インストール(手動)
 
 手動でインストールする場合は次のようにしてください。
 
