@@ -38,6 +38,10 @@ function option_page() {
     if (get_option('conohaojs-servicename') == null) {
         update_option('conohaojs-servicename', 'Object Storage Service');
     }
+    if (get_option('conohaojs-auth-url') == null) {
+        update_option('conohaojs-auth-url', 'https://identity.tyo1.conoha.io/v2.0');
+    }
+
     if (get_option('conohaojs-delobject') == null) {
         update_option('conohaojs-delobject', 1);
     }
